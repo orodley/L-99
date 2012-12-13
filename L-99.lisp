@@ -68,3 +68,50 @@
                     (cddr list)))
         (cons list-car
               (pack (cdr list)))))))
+
+;;; P10
+(defun encode (list)
+  (mapcar (lambda (repeated-elements)
+            (list (length repeated-elements)
+                  (car repeated-elements)))
+          (pack list)))
+
+;;; P11
+(defun encode-modified (list)
+  (mapcar (lambda (repeated-elements)
+            (let ((len (length repeated-elements))
+                  (element (car repeated-elements)))
+              (if (= len 1)
+                element
+                (list len element))))
+          (pack list)))
+
+;;; P12
+(defun decode (encoded-list)
+  (reduce #'append
+          (mapcar (lambda (item)
+                    (if (listp item)
+                      (loop repeat (car item)
+                            collecting (cadr item))
+                      (list item)))
+                  encoded-list)))
+
+;;; P13
+(defun direct-encode (list)
+  (when list
+    (let ((list-car
+            (if (listp (car list))
+              (car list)
+              (list (car list)))))
+      (if (member (cadr list)
+                  list-car) 
+        (direct-encode (cons (append
+                               (if (= (length list-car) 1)
+                                 '(2)
+                                 (list (1+ (car list-car))))
+                               (list (cadr list))) 
+                             (cddr list))) 
+        (cons (if (= (length list-car) 1)
+                (car list-car)
+                list-car)
+              (direct-encode (cdr list)))))))
