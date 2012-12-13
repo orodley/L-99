@@ -53,3 +53,18 @@
       (compress (cdr list))
       (cons (car list)
             (compress (cdr list))))))
+
+;;; P09
+(defun pack (list)
+  (when list
+    (let ((list-car
+            (if (listp (car list))
+              (car list)
+              (list (car list)))))
+      (if (member (cadr list)
+                  list-car)
+        (pack (cons (append list-car
+                            (list (cadr list))) 
+                    (cddr list)))
+        (cons list-car
+              (pack (cdr list)))))))
