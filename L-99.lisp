@@ -115,3 +115,88 @@
                 (car list-car)
                 list-car)
               (direct-encode (cdr list)))))))
+
+;;; P14
+(defun dupli (list)
+  (reduce #'append
+          (mapcar (lambda (x)
+                    (list x x))
+                  list)))
+
+;;; P15
+(defun repli (list n)
+  (reduce #'append
+          (mapcar (lambda (x)
+                    (loop repeat n
+                          collect x))
+                  list)))
+
+;;; P16
+(defun drop (list step)
+  (loop for item in list
+        count item into index
+        when (zerop (mod index step))
+        collect item))
+
+;;; P17
+(defun split (list n)
+  (list (loop for i from 0 to (1- n)
+              collecting (elt list i))
+        (loop for i from n to (1- (length list))
+              collecting (elt list i))))
+
+;;; P18
+(defun slice (list start end)
+  (loop for i from (1- start) to (1- end)
+        collecting (elt list i)))
+
+;;; P19
+(defun rotate (list places)
+  (apply #'append
+         (reverse (split list
+                         (mod places
+                              (length list))))))
+
+;;; P20
+(defun remove-at (list place)
+  (loop for item in list
+        count item into index
+        when (/= index place)
+        collect item))
+
+;;; P21
+(defun insert-at (item list place)
+  (append (slice list 1 (1- place))
+          (list item)
+          (slice list place (length list))))
+
+;;; P22
+(defun range (start end)
+  (if (< start end) 
+    (loop for n from start to end
+          collecting n)
+    (loop for n from start downto end
+          collecting n)))
+
+;;; P23
+(defun rnd-select (list num-items)
+  (loop repeat (- (length list) num-items)
+        do (setf list (remove-at list
+                                 (1+ (random (length list))))))
+  list)
+
+;;; P24
+(defun lotto-select (num-items range-end)
+  (rnd-select (range 1 range-end)
+              num-items))
+
+;;; P25
+;;; Feels kinda dirty
+(defun rnd-permu (list)
+  (let ((shuffled ()))
+    (loop while list
+          do (let ((rnd-elt
+                     (car (rnd-select list 1))))
+               (setf list (remove rnd-elt list))
+               (push rnd-elt shuffled)))
+    shuffled))
