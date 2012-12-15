@@ -200,3 +200,28 @@
                (setf list (remove rnd-elt list))
                (push rnd-elt shuffled)))
     shuffled))
+
+;;; P26
+(defun combination (len list)
+  (if (= len 1)
+    (mapcar #'list list) 
+    (reduce #'append
+            (loop for i to (1- (length list)) collecting
+                  (let ((ith (elt list i))) 
+                    (loop for comb in
+                          (combination (1- len)
+                                       (remove-at list (1+ i)))
+                          collecting (append (list ith)
+                                             comb)))))))
+
+;;; P27
+(defun group3 (group-of-9)
+  (reduce #'append(loop for 2-group in (combination 2 group-of-9)
+        collecting
+        (let ((group-minus-2 (set-difference group-of-9
+                                             2-group)))
+          (loop for 3-group in (combination 3 group-minus-2)
+                collecting
+                (let ((group-minus-5 (set-difference group-minus-2
+                                                     3-group)))
+                  (list 2-group 3-group group-minus-5)))))))
