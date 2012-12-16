@@ -1,4 +1,5 @@
-;;;; Solutions to Lisp problems at http://goo.gl/ckddS
+;;;; P01-P28. Solutions to all problems in section headed:
+;;;; "Working with lists"
 
 ;;; P01
 (defun my-last (list)
@@ -216,12 +217,46 @@
 
 ;;; P27
 (defun group3 (group-of-9)
-  (reduce #'append(loop for 2-group in (combination 2 group-of-9)
-        collecting
-        (let ((group-minus-2 (set-difference group-of-9
-                                             2-group)))
-          (loop for 3-group in (combination 3 group-minus-2)
+  (reduce #'append
+          (loop for 2-group in
+                (combination 2 group-of-9)
                 collecting
-                (let ((group-minus-5 (set-difference group-minus-2
-                                                     3-group)))
-                  (list 2-group 3-group group-minus-5)))))))
+                (let ((group-minus-2
+                        (set-difference group-of-9 2-group)))
+                  (loop for 3-group in
+                        (combination 3 group-minus-2)
+                        collecting
+                        (list 2-group
+                              3-group
+                              (set-difference group-minus-2
+                                              3-group)))))))
+
+;;; Doesn't quite work; wraps successive cdrs of
+;;; groups in lists.
+;;; TODO: Fix this
+(defun group (people subsets)
+  (if (= (length subsets) 1)
+    (combination (car subsets) people)
+    (reduce #'append
+            (loop for comb in (combination (car subsets) people)
+                  collecting
+                  (loop for subgroup in
+                        (group (set-difference people comb)
+                               (cdr subsets))
+                        collecting (list comb subgroup))))))
+
+;;; P28
+(defun lfsort (list-of-lists)
+  (sort list-of-lists #'< :key #'length))
+
+(defun lfsort2 (list-of-lists)
+  (let* ((lengths
+           (mapcar #'length list-of-lists))
+         (freqs
+           (mapcar (lambda (item) (count item lengths))
+                   lengths)))
+    (let ((original-list (copy-list list-of-lists)))
+      (sort list-of-lists #'<
+            :key (lambda (item)
+                   (elt freqs
+                        (position item original-list)))))))
